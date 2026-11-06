@@ -8,8 +8,9 @@ Convert OTLP JSON or simple span JSON traces into Mermaid sequence diagrams of c
 
 ## Problem
 
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and what
-they do today without it. Replace this paragraph when the first real feature lands.
+Trace viewers show waterfalls, but design docs need the service-to-service conversation. Drawing
+sequence diagrams by hand drifts from reality. This CLI turns an exported trace into a Mermaid
+sequence diagram that can be pasted into Markdown.
 
 ## Install
 
@@ -24,17 +25,44 @@ Requires Python 3.10 or newer. No runtime dependencies.
 ## Usage
 
 ```python
-import trace_to_sequence
+from trace_to_sequence import DiagramOptions, parse_trace, to_mermaid
 
-# normalize() trims surrounding whitespace and lower-cases the text.
-print(trace_to_sequence.normalize("  Hello World "))  # -> "hello world"
-
-# Blank input is rejected explicitly instead of returning an empty string.
-try:
-    trace_to_sequence.normalize("   ")
-except ValueError as exc:
-    print(f"rejected: {exc}")
+spans = parse_trace([
+    {"trace_id": "ab" * 16, "span_id": "01" * 8, "parent_id": None,
+     "name": "GET /", "service": "frontend", "start": 0, "end": 30_000_000},
+    {"trace_id": "ab" * 16, "span_id": "02" * 8, "parent_id": "01" * 8,
+     "name": "GET /users", "service": "api", "start": 1_000_000, "end": 13_000_000},
+])
+print(to_mermaid(spans, DiagramOptions()))
 ```
+
+Output:
+
+```text
+sequenceDiagram
+autonumber
+participant Client
+participant p1 as frontend
+participant p2 as api
+Client->>p1: GET /
+p1->>p2: GET /users
+p2-->>p1: ok 12.0 ms
+p1-->>Client: ok 30.0 ms
+```
+
+`load_trace(path, trace_id=None, max_bytes=50_000_000, max_spans=10_000)` reads a file instead.
+
+### CLI
+
+```sh
+trace2seq FILE [--trace-id ID] [--show-internal] [--no-durations] [-o out.md] [--fenced]
+```
+
+Exit codes: `0` success, `2` input or usage error (stderr `error: <code>: <detail>`).
+Orphan spans are listed on stderr (at most 20, then `...`).
+
+Error codes (`TraceError.code`): `unsupported_format`, `invalid_id`, `multiple_traces`,
+`empty_trace`, `parent_cycle`, `input_too_large`, `input_invalid`.
 
 ## Documentation
 
