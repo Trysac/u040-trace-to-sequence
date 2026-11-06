@@ -27,12 +27,28 @@ Requires Python 3.10 or newer. No runtime dependencies.
 ```python
 from trace_to_sequence import DiagramOptions, parse_trace, to_mermaid
 
-spans = parse_trace([
-    {"trace_id": "ab" * 16, "span_id": "01" * 8, "parent_id": None,
-     "name": "GET /", "service": "frontend", "start": 0, "end": 30_000_000},
-    {"trace_id": "ab" * 16, "span_id": "02" * 8, "parent_id": "01" * 8,
-     "name": "GET /users", "service": "api", "start": 1_000_000, "end": 13_000_000},
-])
+spans = parse_trace(
+    [
+        {
+            "trace_id": "ab" * 16,
+            "span_id": "01" * 8,
+            "parent_id": None,
+            "name": "GET /",
+            "service": "frontend",
+            "start": 0,
+            "end": 30_000_000,
+        },
+        {
+            "trace_id": "ab" * 16,
+            "span_id": "02" * 8,
+            "parent_id": "01" * 8,
+            "name": "GET /users",
+            "service": "api",
+            "start": 1_000_000,
+            "end": 13_000_000,
+        },
+    ]
+)
 print(to_mermaid(spans, DiagramOptions()))
 ```
 
