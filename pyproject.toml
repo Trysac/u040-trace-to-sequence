@@ -19,6 +19,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.scripts]
+trace-to-sequence = "trace_to_sequence.__main__:main"
+
 [project.urls]
 Homepage = "https://github.com/Trysac/u040-trace-to-sequence"
 Source = "https://github.com/Trysac/u040-trace-to-sequence"
