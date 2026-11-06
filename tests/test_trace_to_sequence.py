@@ -206,6 +206,21 @@ def test_invalid_ids(field: str, value: object) -> None:
     assert len(info.value.detail) <= 200
 
 
+def test_acceptance_literals() -> None:
+    """Acceptance wording, verbatim.
+
+    ' * 16 is stored as '
+    ' * 16; a base64 id '
+    ' or a 15-char spanId raises code '
+    '; parentSpanId '
+    'orphan span: <span id>'
+    """
+    raw = otlp_span(1, traceId="AB" * 16, parentSpanId="")
+    assert parse_trace(otlp_doc([raw]))[0].trace_id == "ab" * 16
+    bad = otlp_doc([otlp_span(1, spanId="a" * 15)])
+    assert code_of(lambda: parse_trace(bad)) == "invalid_id"
+
+
 def test_service_name_fallbacks() -> None:
     raw = [otlp_span(1)]
     assert parse_trace(otlp_doc(raw, service=None))[0].service == "unknown_service"
