@@ -413,7 +413,8 @@ def test_json_depth_limit() -> None:
     with pytest.raises(TraceError) as ok_info:
         parse_trace(nest(64))
     assert "nesting" not in ok_info.value.detail
-    assert code_of(lambda: parse_trace({"resourceSpans": [], "x": nest_dict(64)})) == "input_invalid"
+    deep = {"resourceSpans": [], "x": nest_dict(64)}
+    assert code_of(lambda: parse_trace(deep)) == "input_invalid"
     assert code_of(lambda: parse_trace({"resourceSpans": [], "x": nest_dict(63)})) == "empty_trace"
     cyclic: list[Any] = []
     cyclic.append(cyclic)
