@@ -1,21 +1,26 @@
-"""Convert OTLP JSON or simple span JSON traces into Mermaid sequence diagrams of calls and returns between services, with safe label escaping"""
+"""Convert OTLP/JSON or simple span JSON traces into Mermaid sequence diagrams."""
 
 from __future__ import annotations
 
-__all__ = ["__version__", "normalize"]
+import logging
+
+from .diagram import DiagramOptions, to_mermaid
+from .errors import ErrorCode, TraceError
+from .model import Span, find_orphans
+from .parser import load_trace, parse_trace
+
+__all__ = [
+    "DiagramOptions",
+    "ErrorCode",
+    "Span",
+    "TraceError",
+    "__version__",
+    "find_orphans",
+    "load_trace",
+    "parse_trace",
+    "to_mermaid",
+]
 
 __version__ = "0.1.0"
 
-
-def normalize(value: str) -> str:
-    """Return ``value`` trimmed and lower-cased.
-
-    Placeholder API created by the template: replace it with the utility's real behavior.
-
-    Raises:
-        ValueError: if ``value`` is empty or only whitespace.
-    """
-    cleaned = value.strip()
-    if not cleaned:
-        raise ValueError("value must not be empty")
-    return cleaned.lower()
+logging.getLogger(__name__).addHandler(logging.NullHandler())
